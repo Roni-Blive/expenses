@@ -1,6 +1,10 @@
+import 'dart:math';
+
+import 'package:expenses/components/transaciton_form.dart';
+import 'package:expenses/components/transaction_user.dart';
+import 'package:expenses/components/transations_list.dart';
 import 'package:expenses/models/transaction.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 void main() {
   runApp(const ExpensesApp());
@@ -17,8 +21,21 @@ class ExpensesApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   MyHomePage({super.key});
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  _openTransactionFormModal(BuildContext ctx) {
+    showModalBottomSheet(
+        context: ctx,
+        builder: (_) {
+          return TransactionForm(_addTransaction);
+        });
+  }
 
   final _transactions = [
     Transaction(
@@ -32,109 +49,55 @@ class MyHomePage extends StatelessWidget {
       title: "novo item 02",
       value: 300.15,
       date: DateTime.now(),
-    )
+    ),
   ];
+
+  void _addTransaction(String title, double value) {
+    final newTrasaction = Transaction(
+      id: Random().nextInt(1000).toString(),
+      title: title,
+      value: value,
+      date: DateTime.now(),
+    );
+
+    setState(() {
+      _transactions.add(newTrasaction);
+    });
+
+    Navigator.of(context).pop();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Despesas Pessoais"),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          const SizedBox(
-            width: double.infinity,
-            child: Card(
-              color: Colors.blue,
-              elevation: 5,
-              child: Text("Gráficos"),
-            ),
-          ),
-          Column(
-            children: _transactions.map((tr) {
-              return Card(
-                child: Row(
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 15,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                        color: Colors.purple,
-                        width: 2,
-                      )),
-                      padding: const EdgeInsets.all(10),
-                      child: Text(
-                        "R\$ ${tr.value.toStringAsFixed(2)}",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.purple,
-                        ),
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          tr.title,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                          DateFormat("dd-MM-y").format(tr.date),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Color.fromARGB(255, 150, 154, 152),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-          Card(
-            elevation: 5,
-            child: Padding(
-              padding: EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  const TextField(
-                    decoration: InputDecoration(labelText: "Título"),
-                  ),
-                  const TextField(
-                    decoration: InputDecoration(labelText: "Valor (R\$)"),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                        child: ElevatedButton(
-                          onPressed: () {},
-                          style: const ButtonStyle(
-                            backgroundColor:
-                                MaterialStatePropertyAll(Colors.white),
-                          ),
-                          child: const Text("Nova Transação", style: TextStyle(color: Colors.blue),),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+        actions: [
+          IconButton(
+            onPressed: () => _openTransactionFormModal(context),
+            icon: const Icon(Icons.add),
           )
         ],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            const SizedBox(
+              width: double.infinity,
+              child: Card(
+                color: Colors.blue,
+                elevation: 5,
+                child: Text("Gráficos"),
+              ),
+            ),
+            TransactionList(_transactions),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _openTransactionFormModal(context),
+        child: const Icon(Icons.add),
       ),
     );
   }
