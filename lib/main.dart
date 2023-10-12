@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:expenses/components/chart.dart';
 import 'package:expenses/components/transaciton_form.dart';
 import 'package:expenses/components/transations_list.dart';
 import 'package:expenses/models/transaction.dart';
@@ -15,13 +16,25 @@ class ExpensesApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: MyHomePage(),
+      home: const MyHomePage(),
+      theme: ThemeData(
+        primarySwatch: Colors.purple,
+        fontFamily: 'Quicksand',
+        appBarTheme: const AppBarTheme(
+          titleTextStyle: TextStyle(
+            fontFamily: 'OpenSans',
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontSize: 20,
+          ),
+        ),
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({super.key});
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -36,27 +49,22 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
-  final _transactions = [
-    Transaction(
-      id: 't1',
-      title: "novo item",
-      value: 300.10,
-      date: DateTime.now(),
-    ),
-    Transaction(
-      id: 't2',
-      title: "novo item 02",
-      value: 300.15,
-      date: DateTime.now(),
-    ),
-  ];
+  final List<Transaction> _transactions = [];
 
-  void _addTransaction(String title, double value) {
+  List<Transaction> get _recentransactions {
+    return _transactions.where((tr) {
+      return tr.date.isAfter(DateTime.now().subtract(
+        const Duration(days: 7),
+      ));
+    }).toList();
+  }
+
+  void _addTransaction(String title, double value, DateTime dateTime) {
     final newTrasaction = Transaction(
       id: Random().nextInt(1000).toString(),
       title: title,
       value: value,
-      date: DateTime.now(),
+      date: dateTime,
     );
 
     setState(() {
@@ -66,11 +74,20 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.of(context).pop();
   }
 
+  void _deleteTRansaction(String id)
+  {
+    setState(() {
+      _transactions.removeWhere((tr) => tr.id == id);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Despesas Pessoais"),
+        title: const Text(
+          "Despesas Pessoais",
+        ),
         actions: [
           IconButton(
             onPressed: () => _openTransactionFormModal(context),
@@ -82,15 +99,8 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            const SizedBox(
-              width: double.infinity,
-              child: Card(
-                color: Colors.blue,
-                elevation: 5,
-                child: Text("Gráficos"),
-              ),
-            ),
-            TransactionList(_transactions),
+            Chart(_recentransactions),
+            TransactionList(_transactions, _deleteTRansaction),
           ],
         ),
       ),

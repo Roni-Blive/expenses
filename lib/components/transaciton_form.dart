@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class TransactionForm extends StatefulWidget {
   const TransactionForm(this.onSubmit, {super.key});
 
-  final void Function(String, double) onSubmit;
+  final void Function(String, double, DateTime) onSubmit;
 
   @override
   State<TransactionForm> createState() => _TransactionFormState();
@@ -14,16 +15,35 @@ class _TransactionFormState extends State<TransactionForm> {
 
   final TextEditingController titleController = TextEditingController();
 
+  DateTime _selectedDate = DateTime.now();
+
   void _submit() {
     final String title = titleController.text;
     final double value = double.tryParse(valueController.text) ?? 0.0;
+    final DateTime dateTime = _selectedDate;
 
     if (title.isEmpty || value <= 0) return;
 
     widget.onSubmit(
       title,
       value,
+      dateTime,
     );
+  }
+
+  void _showDatePicker() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2019),
+      lastDate: DateTime.now(),
+    ).then((pickedDate) {
+      if (pickedDate == null) return;
+
+      setState(() {
+        _selectedDate = pickedDate;
+      });
+    });
   }
 
   @override
@@ -50,6 +70,31 @@ class _TransactionFormState extends State<TransactionForm> {
                 labelText: "Valor (R\$)",
               ),
             ),
+            SizedBox(
+              height: 70,
+              child: Row(
+                children: [
+                  Text(
+                    "Data selecionada: ${DateFormat('d/M/y').format(_selectedDate)}",
+                  ),
+                  Container(
+                    margin: const EdgeInsets.all(10),
+                    child: ElevatedButton(
+                      style: const ButtonStyle(
+                        foregroundColor:
+                            MaterialStatePropertyAll(Colors.purple),
+                        backgroundColor: MaterialStatePropertyAll(Colors.white),
+                      ),
+                      onPressed: _showDatePicker,
+                      child: const Text(
+                        "Selecionar data!",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -57,12 +102,11 @@ class _TransactionFormState extends State<TransactionForm> {
                   padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                   child: ElevatedButton(
                     onPressed: _submit,
-                    style: const ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(Colors.white),
-                    ),
                     child: const Text(
                       "Nova Transação",
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
