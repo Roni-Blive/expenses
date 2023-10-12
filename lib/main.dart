@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:expenses/components/transaciton_form.dart';
-import 'package:expenses/components/transaction_user.dart';
 import 'package:expenses/components/transations_list.dart';
 import 'package:expenses/models/transaction.dart';
 import 'package:flutter/material.dart';
