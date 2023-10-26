@@ -20,12 +20,12 @@ class ExpensesApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.purple,
         fontFamily: 'Quicksand',
-        appBarTheme: const AppBarTheme(
+        appBarTheme: AppBarTheme(
           titleTextStyle: TextStyle(
             fontFamily: 'OpenSans',
             fontWeight: FontWeight.bold,
             color: Colors.white,
-            fontSize: 20,
+            fontSize: 20 * MediaQuery.of(context).textScaleFactor,
           ),
         ),
       ),
@@ -50,6 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   final List<Transaction> _transactions = [];
+  bool _showChart = false;
 
   List<Transaction> get _recentransactions {
     return _transactions.where((tr) {
@@ -74,8 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.of(context).pop();
   }
 
-  void _deleteTRansaction(String id)
-  {
+  void _deleteTRansaction(String id) {
     setState(() {
       _transactions.removeWhere((tr) => tr.id == id);
     });
@@ -83,24 +83,64 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Despesas Pessoais",
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => _openTransactionFormModal(context),
-            icon: const Icon(Icons.add),
-          )
-        ],
+    bool isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
+    final appBar = AppBar(
+      title: const Text(
+        "Despesas Pessoais",
       ),
+      actions: [
+        if (isLandscape)
+          IconButton(
+            onPressed: () => {
+              setState(() {
+                _showChart = !_showChart;
+              })
+            },
+            icon: Icon(_showChart ? Icons.list : Icons.show_chart),
+          ),
+        IconButton(
+          onPressed: () => _openTransactionFormModal(context),
+          icon: const Icon(Icons.add),
+        )
+      ],
+    );
+
+    final aveilebalHeight = MediaQuery.of(context).size.height -
+        appBar.preferredSize.height -
+        MediaQuery.of(context).padding.top;
+
+    return Scaffold(
+      appBar: appBar,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Chart(_recentransactions),
-            TransactionList(_transactions, _deleteTRansaction),
+            // if (isLandscape)
+            //   Row(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       const Text('Exibir gráfico'),
+            //       Switch(
+            //           value: _showChart,
+            //           onChanged: (value) {
+            //             setState(() {
+            //               _showChart = value;
+            //             });
+            //           }),
+            //     ],
+            //   ),
+            if (_showChart || !isLandscape)
+              SizedBox(
+                height: aveilebalHeight * (isLandscape ? 0.7 : 0.3),
+                child: Chart(_recentransactions),
+              ),
+            if (!_showChart || !isLandscape)
+              SizedBox(
+                height: aveilebalHeight * 0.7,
+                child: TransactionList(_transactions, _deleteTRansaction),
+              ),
           ],
         ),
       ),

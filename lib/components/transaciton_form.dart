@@ -48,71 +48,78 @@ class _TransactionFormState extends State<TransactionForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 5,
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            TextField(
-              controller: titleController,
-              onSubmitted: (_) => _submit(),
-              decoration: const InputDecoration(
-                labelText: "Título",
+    return SingleChildScrollView(
+      child: Card(
+        elevation: 5,
+        child: Padding(
+          padding: EdgeInsets.only(
+            top: 10,
+            right: 10,
+            left: 10,
+            bottom: 10 + MediaQuery.of(context).viewInsets.bottom
+          ),
+          child: Column(
+            children: [
+              TextField(
+                controller: titleController,
+                onSubmitted: (_) => _submit(),
+                decoration: const InputDecoration(
+                  labelText: "Título",
+                ),
               ),
-            ),
-            TextField(
-              controller: valueController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              onSubmitted: (_) => _submit(),
-              decoration: const InputDecoration(
-                labelText: "Valor (R\$)",
+              TextField(
+                controller: valueController,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                onSubmitted: (_) => _submit(),
+                decoration: const InputDecoration(
+                  labelText: "Valor (R\$)",
+                ),
               ),
-            ),
-            SizedBox(
-              height: 70,
-              child: Row(
-                children: [
-                  Text(
-                    "Data selecionada: ${DateFormat('d/M/y').format(_selectedDate)}",
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(10),
-                    child: ElevatedButton(
-                      style: const ButtonStyle(
-                        foregroundColor:
-                            MaterialStatePropertyAll(Colors.purple),
-                        backgroundColor: MaterialStatePropertyAll(Colors.white),
+              SizedBox(
+                height: 70,
+                child: Row(
+                  children: [
+                    Text(
+                      "Data selecionada: ${DateFormat('d/M/y').format(_selectedDate)}",
+                    ),
+                    Container(
+                      margin: const EdgeInsets.all(10),
+                      child: ElevatedButton(
+                        style: const ButtonStyle(
+                          foregroundColor:
+                              MaterialStatePropertyAll(Colors.purple),
+                          backgroundColor: MaterialStatePropertyAll(Colors.white),
+                        ),
+                        onPressed: _showDatePicker,
+                        child: const Text(
+                          "Selecionar data!",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
-                      onPressed: _showDatePicker,
+                    )
+                  ],
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                    child: ElevatedButton(
+                      onPressed: _submit,
                       child: const Text(
-                        "Selecionar data!",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        "Nova Transação",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                  child: ElevatedButton(
-                    onPressed: _submit,
-                    child: const Text(
-                      "Nova Transação",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
